@@ -67,7 +67,7 @@ def hunter_dinamico_v224(dados_h, dados_a, tipo, h_n, a_n):
     return sorted(scan.items(), key=lambda x: x[1], reverse=True)
 
 # --- SEGURANÇA ---
-st.set_page_config(page_title="PROTOCOLO LB - CONSULTA", layout="wide")
+st.set_page_config(page_title="PROTOCOLO LB | Scouting de Elite", layout="wide")
 
 if "auth" not in st.session_state: st.session_state.auth = False
 if not st.session_state.auth:
