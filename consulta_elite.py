@@ -6,7 +6,7 @@ import hashlib
 import random
 
 # --- CONFIGURAÇÃO DE ACESSO ---
-SENHA_ACESSO = "elite2024" 
+SENHA_ACESSO = "elite2026" 
 
 # --- 1. QG DE INTELIGÊNCIA: RADAR GLOBAL ---
 THE_ODDS_KEY = '4eeb55e11fc9b7ed7db6377f2f23d6f1'
