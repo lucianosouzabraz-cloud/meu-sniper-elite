@@ -72,7 +72,7 @@ st.set_page_config(page_title="PROTOCOLO LB | Scouting de Elite", layout="wide")
 if "auth" not in st.session_state: st.session_state.auth = False
 if not st.session_state.auth:
     carregar_logo(300)
-    st.title("🛡️ Sistema de Consulta de Elite")
+    st.title("🛡️ Sistema de Consulta - Aposta Esportiva")
     pwd = st.text_input("Senha de Acesso:", type="password")
     if st.button("Acessar Radar"):
         if pwd == SENHA_ACESSO:
