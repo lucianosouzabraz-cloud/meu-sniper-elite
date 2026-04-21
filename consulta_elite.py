@@ -4,11 +4,12 @@ import requests
 from datetime import datetime
 import hashlib
 import random
+import os
 
 # --- CONFIGURAÇÃO DE ACESSO ---
 SENHA_ACESSO = "elite2026" 
 
-# --- 1. QG DE INTELIGÊNCIA: RADAR GLOBAL ---
+# --- 1. QG DE INTELIGÊNCIA ---
 THE_ODDS_KEY = '4eeb55e11fc9b7ed7db6377f2f23d6f1'
 
 LIGAS_ELITE = {
@@ -23,7 +24,6 @@ LIGAS_ELITE = {
     "Copa Libertadores": {"key": "soccer_conmebol_libertadores", "p_cards": 1.7, "p_gols": 0.9}
 }
 
-# --- 2. MOTOR DE DNA ---
 def farejar_dna_v224(time, mercado, mando, liga, data):
     identidade = f"{time}{mercado}{mando}{liga}{data}v224"
     seed = int(hashlib.md5(identidade.encode()).hexdigest(), 16) % 10**8
@@ -44,8 +44,6 @@ def hunter_dinamico_v224(dados_h, dados_a, tipo, h_n, a_n):
         for l in [0.5, 1.5, 2.5]:
             scan[f"{h_n} Over {l}"] = sum(1 for x in dados_h if x > l) / 10
             scan[f"{a_n} Over {l}"] = sum(1 for x in dados_a if x > l) / 10
-        scan["Ambas Marcam: Sim"] = (sum(1 for x in dados_h if x >= 1)/10) * (sum(1 for x in dados_a if x >= 1)/10)
-    
     elif tipo == "Cantos":
         total = [dados_h[i] + dados_a[i] for i in range(10)]
         for l in [7.5, 8.5, 9.5, 10.5, 11.5]: scan[f"Total Over {l}"] = sum(1 for x in total if x > l) / 10
@@ -53,34 +51,19 @@ def hunter_dinamico_v224(dados_h, dados_a, tipo, h_n, a_n):
         for l in [3.5, 4.5, 5.5]:
             scan[f"{h_n} Over {l}"] = sum(1 for x in dados_h if x > l) / 10
             scan[f"{a_n} Over {l}"] = sum(1 for x in dados_a if x > l) / 10
-        for l in [6.5, 7.5]:
-            scan[f"{h_n} Under {l}"] = sum(1 for x in dados_h if x < l) / 10
-            scan[f"{a_n} Under {l}"] = sum(1 for x in dados_a if x < l) / 10
-            
-    elif tipo == "Chutes":
-        total_g = [dados_h[i] + dados_a[i] for i in range(10)]
-        for l in [6.5, 7.5, 8.5, 9.5, 10.5]: scan[f"Soma Over {l}"] = sum(1 for x in total_g if x > l) / 10
-        for l in [2.5, 3.5, 4.5, 5.5]:
-            scan[f"{h_n} Over {l}"] = sum(1 for x in dados_h if x > l) / 10
-            scan[f"{a_n} Over {l}"] = sum(1 for x in dados_a if x > l) / 10
-
     elif tipo == "Cards":
         total = [dados_h[i] + dados_a[i] for i in range(10)]
         for l in [3.5, 4.5, 5.5, 6.5, 7.5]: scan[f"Total Over {l}"] = sum(1 for x in total if x > l) / 10
         for l in [6.5, 7.5, 8.5]: scan[f"Total Under {l}"] = sum(1 for x in total if x < l) / 10
-        for l in [1.5, 2.5, 3.5]:
-            scan[f"{h_n} Over {l}"] = sum(1 for x in dados_h if x > l) / 10
-            scan[f"{a_n} Over {l}"] = sum(1 for x in dados_a if x > l) / 10
-
     return sorted(scan.items(), key=lambda x: x[1], reverse=True)
 
 # --- 3. INTERFACE E SEGURANÇA ---
-st.set_page_config(page_title="PROTOCOLO LB - Consulta", layout="wide")
+st.set_page_config(page_title="PROTOCOLO LB - CONSULTA", layout="wide")
 
 def check_password():
-    if "authenticated" not in st.session_state:
-        st.session_state.authenticated = False
+    if "authenticated" not in st.session_state: st.session_state.authenticated = False
     if not st.session_state.authenticated:
+        if os.path.exists("logo_lb.jpg"): st.image("logo_lb.jpg", width=300)
         st.title("🛡️ Sistema de Consulta de Elite")
         senha_input = st.text_input("Digite a Senha de Acesso:", type="password")
         if st.button("Acessar Radar"):
@@ -92,8 +75,9 @@ def check_password():
     return True
 
 if check_password():
-    st.title("📡 PROTOCOLO LB | Modo Consulta")
-    st.info("💡 Visualização de probabilidades técnica. Salvamento desativado.")
+    if os.path.exists("logo_lb.jpg"): st.image("logo_lb.jpg", width=250)
+    st.title("📡 PROTOCOLO LB | Consulta")
+    st.info("💡 Acesso exclusivo para visualização técnica.")
 
     with st.sidebar:
         st.header("🎯 Radar de Ligas")
@@ -115,42 +99,29 @@ if check_password():
                 if st.button(f"📡 VER DNA: {h_t} x {a_t}", key=f"btn_{idx}"):
                     gh, ga = farejar_dna_v224(h_t, "Gols", "casa", liga_sel, j_data), farejar_dna_v224(a_t, "Gols", "fora", liga_sel, j_data)
                     ch, ca = farejar_dna_v224(h_t, "Cantos", "casa", liga_sel, j_data), farejar_dna_v224(a_t, "Cantos", "fora", liga_sel, j_data)
-                    fgh, fga = farejar_dna_v224(h_t, "Chutes_G", "casa", liga_sel, j_data), farejar_dna_v224(a_t, "Chutes_G", "fora", liga_sel, j_data)
                     cdh, cda = farejar_dna_v224(h_t, "Cards", "casa", liga_sel, j_data), farejar_dna_v224(a_t, "Cards", "fora", liga_sel, j_data)
-                    
                     st.session_state[state_key] = {
                         "res_g": hunter_dinamico_v224(gh, ga, "Gols", h_t, a_t),
                         "res_c": hunter_dinamico_v224(ch, ca, "Cantos", h_t, a_t),
-                        "res_f": hunter_dinamico_v224(fgh, fga, "Chutes", h_t, a_t),
                         "res_ca": hunter_dinamico_v224(cdh, cda, "Cards", h_t, a_t)
                     }
 
                 if state_key in st.session_state:
                     dados = st.session_state[state_key]
-                    for label, res in [("⚽ GOLS", dados["res_g"]), ("🚩 CANTOS", dados["res_c"]), ("🎯 FINALIZAÇÕES AO GOL", dados["res_f"]), ("🟨 CARTÕES", dados["res_ca"])]:
+                    for label, res in [("⚽ GOLS", dados["res_g"]), ("🚩 CANTOS", dados["res_c"]), ("🟨 CARTÕES", dados["res_ca"])]:
                         st.markdown(f"#### {label}")
                         cols = st.columns(3)
                         for i in range(15):
-                            if i < len(res):
-                                cols[i % 3].write(f"{res[i][0]}: **{res[i][1]:.1%}**")
+                            if i < len(res): cols[i % 3].write(f"{res[i][0]}: **{res[i][1]:.1%}**")
                         st.divider()
                     
                     st.subheader("🏆 Sugestões de Elite")
-                    
-                    # Garantindo que existam opções suficientes para as sugestões
-                    gols = dados["res_g"]
-                    cantos = dados["res_c"]
-                    cards = dados["res_ca"]
-
+                    gols, cantos, cards = dados["res_g"], dados["res_c"], dados["res_ca"]
                     st.info(f"🔹 **Opção 1 (Segura):** {gols[0][0]} + {cantos[0][0]} + {cards[0][0]}")
-                    
-                    if len(gols) > 1 and len(cantos) > 1 and len(cards) > 1:
-                        st.info(f"🔹 **Opção 2 (Moderada):** {gols[1][0]} + {cantos[1][0]} + {cards[1][0]}")
-                    
-                    if len(gols) > 2 and len(cantos) > 2 and len(cards) > 2:
-                        st.info(f"🔹 **Opção 3 (Arriscada):** {gols[2][0]} + {cantos[2][0]} + {cards[2][0]}")
+                    if len(gols) > 1: st.info(f"🔹 **Opção 2 (Moderada):** {gols[1][0]} + {cantos[1][0]} + {cards[1][0]}")
+                    if len(gols) > 2: st.info(f"🔹 **Opção 3 (Arriscada):** {gols[2][0]} + {cantos[2][0]} + {cards[2][0]}")
                     
                     st.markdown("---")
-                    st.caption("📊 **PROTOCOLO LB** - Sistema de Inteligência e Scouting de Elite")
-                    st.caption("Precisão Estatística | DNA de Jogo | Gestão de Risco")
+                    st.caption("📊 **PROTOCOLO LB** - Scouting de Elite")
+                    st.caption("Precisão Estatística | Gestão de Risco | Inteligência Esportiva")
                 st.divider()
