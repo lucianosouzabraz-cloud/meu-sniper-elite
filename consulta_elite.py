@@ -6,7 +6,7 @@ import hashlib
 import random
 
 # --- CONFIGURAÇÃO DE ACESSO ---
-SENHA_ACESSO = "elite2026"  # Você pode alterar esta senha aqui
+SENHA_ACESSO = "elite2024" 
 
 # --- 1. QG DE INTELIGÊNCIA: RADAR GLOBAL ---
 THE_ODDS_KEY = '4eeb55e11fc9b7ed7db6377f2f23d6f1'
@@ -44,26 +44,45 @@ def hunter_dinamico_v224(dados_h, dados_a, tipo, h_n, a_n):
         for l in [0.5, 1.5, 2.5]:
             scan[f"{h_n} Over {l}"] = sum(1 for x in dados_h if x > l) / 10
             scan[f"{a_n} Over {l}"] = sum(1 for x in dados_a if x > l) / 10
+        scan["Ambas Marcam: Sim"] = (sum(1 for x in dados_h if x >= 1)/10) * (sum(1 for x in dados_a if x >= 1)/10)
+    
     elif tipo == "Cantos":
         total = [dados_h[i] + dados_a[i] for i in range(10)]
         for l in [7.5, 8.5, 9.5, 10.5, 11.5]: scan[f"Total Over {l}"] = sum(1 for x in total if x > l) / 10
         for l in [11.5, 12.5, 13.5]: scan[f"Total Under {l}"] = sum(1 for x in total if x < l) / 10
+        for l in [3.5, 4.5, 5.5]:
+            scan[f"{h_n} Over {l}"] = sum(1 for x in dados_h if x > l) / 10
+            scan[f"{a_n} Over {l}"] = sum(1 for x in dados_a if x > l) / 10
+        for l in [6.5, 7.5]:
+            scan[f"{h_n} Under {l}"] = sum(1 for x in dados_h if x < l) / 10
+            scan[f"{a_n} Under {l}"] = sum(1 for x in dados_a if x < l) / 10
+            
     elif tipo == "Chutes":
         total_g = [dados_h[i] + dados_a[i] for i in range(10)]
-        for l in [7.5, 8.5, 9.5, 10.5]: scan[f"Soma Over {l}"] = sum(1 for x in total_g if x > l) / 10
+        for l in [6.5, 7.5, 8.5, 9.5, 10.5]: scan[f"Soma Over {l}"] = sum(1 for x in total_g if x > l) / 10
+        for l in [2.5, 3.5, 4.5, 5.5]:
+            scan[f"{h_n} Over {l}"] = sum(1 for x in dados_h if x > l) / 10
+            scan[f"{a_n} Over {l}"] = sum(1 for x in dados_a if x > l) / 10
+
     elif tipo == "Cards":
         total = [dados_h[i] + dados_a[i] for i in range(10)]
-        for l in [3.5, 4.5, 5.5, 6.5]: scan[f"Total Over {l}"] = sum(1 for x in total if x > l) / 10
+        for l in [3.5, 4.5, 5.5, 6.5, 7.5]: scan[f"Total Over {l}"] = sum(1 for x in total if x > l) / 10
+        for l in [6.5, 7.5, 8.5]: scan[f"Total Under {l}"] = sum(1 for x in total if x < l) / 10
+        for l in [1.5, 2.5, 3.5]:
+            scan[f"{h_n} Over {l}"] = sum(1 for x in dados_h if x > l) / 10
+            scan[f"{a_n} Over {l}"] = sum(1 for x in dados_a if x > l) / 10
+        for l in [4.5, 5.5]:
+            scan[f"{h_n} Under {l}"] = sum(1 for x in dados_h if x < l) / 10
+            scan[f"{a_n} Under {l}"] = sum(1 for x in dados_a if x < l) / 10
+
     return sorted(scan.items(), key=lambda x: x[1], reverse=True)
 
 # --- 3. INTERFACE E SEGURANÇA ---
-st.set_page_config(page_title="Scout Consulta - Sniper", layout="wide")
+st.set_page_config(page_title="PROTOCOLO LB - Consulta", layout="wide")
 
-# Função de Verificação de Senha
 def check_password():
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = False
-
     if not st.session_state.authenticated:
         st.title("🛡️ Sistema de Consulta de Elite")
         senha_input = st.text_input("Digite a Senha de Acesso:", type="password")
@@ -71,18 +90,16 @@ def check_password():
             if senha_input == SENHA_ACESSO:
                 st.session_state.authenticated = True
                 st.rerun()
-            else:
-                st.error("❌ Senha incorreta. Acesso negado.")
+            else: st.error("❌ Senha incorreta.")
         return False
     return True
 
-# Se a senha estiver correta, carrega o resto do programa
 if check_password():
-    st.title("📡 PROTOCOLO LB | Scouting de Elite")
-    st.info("💡 Este modo é apenas para visualização. O salvamento em planilha está desativado.")
+    st.title("📡 PROTOCOLO LB | Modo Consulta")
+    st.info("💡 Visualização de probabilidades técnica. Salvamento desativado para este perfil.")
 
     with st.sidebar:
-        st.header("🎯 Escolha a Rodada")
+        st.header("🎯 Radar de Ligas")
         liga_sel = st.selectbox("Liga", list(LIGAS_ELITE.keys()))
         data_sel = st.date_input("Data", value=datetime.now())
         if st.button("🔍 Iniciar Varredura"):
@@ -116,14 +133,13 @@ if check_password():
                     for label, res in [("⚽ GOLS", dados["res_g"]), ("🚩 CANTOS", dados["res_c"]), ("🎯 FINALIZAÇÕES", dados["res_f"]), ("🟨 CARTÕES", dados["res_ca"])]:
                         st.markdown(f"#### {label}")
                         cols = st.columns(3)
-                        for i in range(12):
+                        for i in range(15): # AGORA MOSTRA 15 OPÇÕES IGUAL AO MASTER
                             if i < len(res):
                                 cols[i % 3].write(f"{res[i][0]}: **{res[i][1]:.1%}**")
                         st.divider()
-                # --- INSERIR O RODAPÉ DA MARCA AQUI ---
-                st.markdown("---")
-                st.caption("📊 **PROTOCOLO LB** - Sistema de Inteligência e Scouting de Elite")
-                st.caption("Precisão Estatística | DNA de Jogo | Gestão de Risco")
-                # --------------------------------------
-                
+                    
+                    st.info(f"📝 **Sugestão de Elite:** {dados['res_g'][0][0]} + {dados['res_c'][0][0]}")
+                    st.markdown("---")
+                    st.caption("📊 **PROTOCOLO LB** - Sistema de Inteligência e Scouting de Elite")
+                    st.caption("Precisão Estatística | DNA de Jogo | Gestão de Risco")
                 st.divider()
