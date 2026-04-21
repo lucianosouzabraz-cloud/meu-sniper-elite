@@ -1,3 +1,5 @@
 streamlit
 pandas
 requests
+python-telegram-bot
+openpyxl
