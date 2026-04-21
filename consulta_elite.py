@@ -23,7 +23,7 @@ LIGAS_ELITE = {
     "Copa Libertadores": {"key": "soccer_conmebol_libertadores", "p_cards": 1.7, "p_gols": 0.9}
 }
 
-# --- 2. MOTOR DE DNA (ESTRUTURA ORIGINAL v224) ---
+# --- 2. MOTOR DE DNA ---
 def farejar_dna_v224(time, mercado, mando, liga, data):
     identidade = f"{time}{mercado}{mando}{liga}{data}v224"
     seed = int(hashlib.md5(identidade.encode()).hexdigest(), 16) % 10**8
@@ -71,9 +71,6 @@ def hunter_dinamico_v224(dados_h, dados_a, tipo, h_n, a_n):
         for l in [1.5, 2.5, 3.5]:
             scan[f"{h_n} Over {l}"] = sum(1 for x in dados_h if x > l) / 10
             scan[f"{a_n} Over {l}"] = sum(1 for x in dados_a if x > l) / 10
-        for l in [4.5, 5.5]:
-            scan[f"{h_n} Under {l}"] = sum(1 for x in dados_h if x < l) / 10
-            scan[f"{a_n} Under {l}"] = sum(1 for x in dados_a if x < l) / 10
 
     return sorted(scan.items(), key=lambda x: x[1], reverse=True)
 
@@ -96,7 +93,7 @@ def check_password():
 
 if check_password():
     st.title("📡 PROTOCOLO LB | Modo Consulta")
-    st.info("💡 Visualização de probabilidades técnica. Salvamento desativado para este perfil.")
+    st.info("💡 Visualização de probabilidades técnica. Salvamento desativado.")
 
     with st.sidebar:
         st.header("🎯 Radar de Ligas")
@@ -133,12 +130,26 @@ if check_password():
                     for label, res in [("⚽ GOLS", dados["res_g"]), ("🚩 CANTOS", dados["res_c"]), ("🎯 FINALIZAÇÕES", dados["res_f"]), ("🟨 CARTÕES", dados["res_ca"])]:
                         st.markdown(f"#### {label}")
                         cols = st.columns(3)
-                        for i in range(15): # AGORA MOSTRA 15 OPÇÕES IGUAL AO MASTER
+                        for i in range(15):
                             if i < len(res):
                                 cols[i % 3].write(f"{res[i][0]}: **{res[i][1]:.1%}**")
                         st.divider()
                     
-                    st.info(f"📝 **Sugestão de Elite:** {dados['res_g'][0][0]} + {dados['res_c'][0][0]}")
+                    st.subheader("🏆 Sugestões de Elite")
+                    
+                    # Garantindo que existam opções suficientes para as sugestões
+                    gols = dados["res_g"]
+                    cantos = dados["res_c"]
+                    cards = dados["res_ca"]
+
+                    st.info(f"🔹 **Opção 1 (Segura):** {gols[0][0]} + {cantos[0][0]} + {cards[0][0]}")
+                    
+                    if len(gols) > 1 and len(cantos) > 1 and len(cards) > 1:
+                        st.info(f"🔹 **Opção 2 (Moderada):** {gols[1][0]} + {cantos[1][0]} + {cards[1][0]}")
+                    
+                    if len(gols) > 2 and len(cantos) > 2 and len(cards) > 2:
+                        st.info(f"🔹 **Opção 3 (Arriscada):** {gols[2][0]} + {cantos[2][0]} + {cards[2][0]}")
+                    
                     st.markdown("---")
                     st.caption("📊 **PROTOCOLO LB** - Sistema de Inteligência e Scouting de Elite")
                     st.caption("Precisão Estatística | DNA de Jogo | Gestão de Risco")
