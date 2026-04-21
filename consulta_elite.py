@@ -78,7 +78,7 @@ def check_password():
 
 # Se a senha estiver correta, carrega o resto do programa
 if check_password():
-    st.title("📡 Radar Sniper - Modo Consulta")
+    st.title("📡 PROTOCOLO LB | Scouting de Elite")
     st.info("💡 Este modo é apenas para visualização. O salvamento em planilha está desativado.")
 
     with st.sidebar:
