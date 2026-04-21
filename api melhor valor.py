@@ -151,6 +151,12 @@ if 'jogos_v224' in st.session_state:
                 s_c = c2.selectbox("Melhor Canto", [r[0] for r in dados["res_c"][:5]], key=f"s_c_{idx}")
                 s_ca = c3.selectbox("Melhor Card", [r[0] for r in dados["res_ca"][:5]], key=f"s_ca_{idx}")
 
+# --- INSERIR O RODAPÉ DA MARCA AQUI ---
+                st.markdown("---")
+                st.caption("📊 **PROTOCOLO LB** - Sistema de Inteligência e Scouting de Elite")
+                st.caption("Precisão Estatística | DNA de Jogo | Gestão de Risco")
+                # --------------------------------------
+                
                 if st.button("✅ Confirmar e Salvar no Histórico", key=f"save_{idx}"):
                     salvar_no_ledger(j_data, h_t, a_t, dados["xg_h"], dados["xg_a"], s_g, s_c, s_ca)
                     st.success(f"🎯 Registro de {h_t} salvo!")
