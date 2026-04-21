@@ -83,7 +83,7 @@ if not st.session_state.auth:
 
 # --- INTERFACE CONSULTA ---
 carregar_logo(200)
-st.title("📡 PROTOCOLO LB | Consulta")
+st.title("📡 PROTOCOLO LB | Scouting de Elite")
 st.info("💡 Acesso exclusivo para visualização técnica.")
 
 with st.sidebar:
