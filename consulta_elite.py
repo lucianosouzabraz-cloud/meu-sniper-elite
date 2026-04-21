@@ -120,4 +120,10 @@ if check_password():
                             if i < len(res):
                                 cols[i % 3].write(f"{res[i][0]}: **{res[i][1]:.1%}**")
                         st.divider()
+                # --- INSERIR O RODAPÉ DA MARCA AQUI ---
+                st.markdown("---")
+                st.caption("📊 **PROTOCOLO LB** - Sistema de Inteligência e Scouting de Elite")
+                st.caption("Precisão Estatística | DNA de Jogo | Gestão de Risco")
+                # --------------------------------------
+                
                 st.divider()
