@@ -127,7 +127,7 @@ if check_password():
 
                 if state_key in st.session_state:
                     dados = st.session_state[state_key]
-                    for label, res in [("⚽ GOLS", dados["res_g"]), ("🚩 CANTOS", dados["res_c"]), ("🎯 FINALIZAÇÕES", dados["res_f"]), ("🟨 CARTÕES", dados["res_ca"])]:
+                    for label, res in [("⚽ GOLS", dados["res_g"]), ("🚩 CANTOS", dados["res_c"]), ("🎯 FINALIZAÇÕES AO GOL", dados["res_f"]), ("🟨 CARTÕES", dados["res_ca"])]:
                         st.markdown(f"#### {label}")
                         cols = st.columns(3)
                         for i in range(15):
