@@ -80,7 +80,7 @@ def salvar_no_ledger(data_j, h, a, xg_h, xg_a, best_gol, best_canto, best_card):
 
 # --- 4. INTERFACE ---
 st.set_page_config(page_title="Sniper v239 - Online Mode", layout="wide")
-st.title("🛡️ Sniper v239 - Final Shield (Online Edition)")
+st.title("🛡️ PROTOCOLO LB | Scouting de Elite")
 
 # --- GERENCIADOR DE PLANILHA (SISTEMA ORIGINAL COM LIXEIRA) ---
 if os.path.exists(ARQUIVO_PLANILHA):
