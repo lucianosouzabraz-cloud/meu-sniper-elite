@@ -149,11 +149,21 @@ if 'jogos_consulta' in st.session_state:
                         if i < len(res): cols[i % 3].write(f"{res[i][0]}: **{res[i][1]:.1%}**")
                     st.divider()
                 
-                st.subheader("🏆 Sugestões de Elite")
+               st.subheader("🏆 Sugestões de Elite")
                 g, c, ca = dados["res_g"], dados["res_c"], dados["res_ca"]
-                st.info(f"🔹 **Opção 1 (Safe):** {g[0][0]} + {c[0][0]} + {ca[0][0]}")
-                if len(g) > 1: st.info(f"🔹 **Opção 2 (Moderada):** {g[1][0]} + {c[1][0]} + {ca[1][0]}")
-                if len(g) > 2: st.info(f"🔹 **Opção 3 (Arriscada):** {g[2][0]} + {c[2][0]} + {ca[2][0]}")
+                
+                # Função auxiliar para manter o código limpo e organizado
+                def layout_elite(idx):
+                    return f"⚽ **Gols:** {g[idx][0]} | 🚩 **Cantos:** {c[idx][0]} | 🟨 **Cards:** {ca[idx][0]}"
+
+                # Exibição das 3 Opções com discriminação clara
+                st.info(f"🔹 **Opção 1 (Safe):**\n{layout_elite(0)}")
+                
+                if len(g) > 1 and len(c) > 1 and len(ca) > 1:
+                    st.info(f"🔹 **Opção 2 (Moderada):**\n{layout_elite(1)}")
+                
+                if len(g) > 2 and len(c) > 2 and len(ca) > 2:
+                    st.info(f"🔹 **Opção 3 (Arriscada):**\n{layout_elite(2)}")
                 
                 st.markdown("---")
                 st.caption("📊 **PROTOCOLO LB** - Sistema de Inteligência e Scouting de Elite")
