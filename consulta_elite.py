@@ -165,7 +165,7 @@ if 'jogos_consulta' in st.session_state:
                 if len(g) > 2 and len(c) > 2 and len(ca) > 2:
                     st.info(f"🔹 **Opção 3 (Arriscada):**\n{layout_elite(2)}")
                 
-                st.markdown("---")
+              
                 st.caption("📊 **PROTOCOLO LB** - Sistema de Inteligência e Scouting de Elite")
                 st.caption("Precisão Estatística | DNA de Jogo | Gestão de Risco")
             st.divider()
