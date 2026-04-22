@@ -10,7 +10,7 @@ import os
 SENHA_ACESSO = "elite2026" 
 THE_ODDS_KEY = '4eeb55e11fc9b7ed7db6377f2f23d6f1'
 
-# LIGAS ATUALIZADAS (IGUAL AO MASTER)
+# LIGAS SINCRONIZADAS COM O MASTER
 LIGAS_ELITE = {
     "Brasileirão Série A": {"key": "soccer_brazil_campeonato", "p_cards": 1.4, "p_gols": 1.0},
     "Brasileirão Série B": {"key": "soccer_brazil_serie_b", "p_cards": 1.6, "p_gols": 0.75},
@@ -25,7 +25,7 @@ LIGAS_ELITE = {
     "Champions League": {"key": "soccer_uefa_champs_league", "p_cards": 0.9, "p_gols": 1.5}
 }
 
-# FUNÇÃO DE LOGO (IGUAL AO MASTER)
+# FUNÇÃO DE LOGO INTELIGENTE
 def carregar_logo(tamanho=300):
     nomes_possiveis = ["image_004099.png", "logo_lb.png", "logo_lb.jpg", "logo_lb.jpeg"]
     for nome in nomes_possiveis:
@@ -98,7 +98,7 @@ if not st.session_state.authenticated:
 # --- INTERFACE CONSULTA ---
 carregar_logo(200)
 st.title("📡 PROTOCOLO LB | Modo Consulta")
-st.info("💡 Visualização de probabilidades técnica. Salvamento desativado.")
+st.info("💡 Visualização técnica das probabilidades. Salvamento desativado.")
 
 with st.sidebar:
     st.header("🎯 Radar de Ligas")
@@ -110,7 +110,7 @@ with st.sidebar:
         if res.status_code == 200:
             jogos_filtro = []
             for j in res.json():
-                # AJUSTE DE FUSO HORÁRIO BRASIL
+                # AJUSTE DE FUSO HORÁRIO BRASIL (UTC-3)
                 utc_time = datetime.strptime(j['commence_time'], "%Y-%m-%dT%H:%M:%SZ")
                 brt_time = utc_time - timedelta(hours=3)
                 if brt_time.date() == data_sel:
@@ -142,30 +142,29 @@ if 'jogos_consulta' in st.session_state:
 
             if state_key in st.session_state:
                 dados = st.session_state[state_key]
-                for label, res in [("⚽ GOLS", dados["res_g"]), ("🚩 CANTOS", dados["res_c"]), ("🎯 FINALIZAÇÕES - Chute ao GOL", dados["res_f"]), ("🟨 CARTÕES", dados["res_ca"])]:
+                for label, res in [("⚽ GOLS", dados["res_g"]), ("🚩 CANTOS", dados["res_c"]), ("🎯 FINALIZAÇÕES - Chutes ao GOL", dados["res_f"]), ("🟨 CARTÕES", dados["res_ca"])]:
                     st.markdown(f"#### {label}")
                     cols = st.columns(3)
                     for i in range(15):
                         if i < len(res): cols[i % 3].write(f"{res[i][0]}: **{res[i][1]:.1%}**")
                     st.divider()
                 
-               st.subheader("🏆 Sugestões de Elite")
+                st.subheader("🏆 Sugestões de Elite")
                 g, c, ca = dados["res_g"], dados["res_c"], dados["res_ca"]
                 
-                # Função auxiliar para manter o código limpo e organizado
-                def layout_elite(idx):
-                    return f"⚽ **Gols:** {g[idx][0]} | 🚩 **Cantos:** {c[idx][0]} | 🟨 **Cards:** {ca[idx][0]}"
+                # FUNÇÃO PARA DISCRIMINAR MERCADOS COM CLAREZA
+                def formatar_sugestao(i):
+                    return f"⚽ **Gols:** {g[i][0]} | 🚩 **Cantos:** {c[i][0]} | 🟨 **Cards:** {ca[i][0]}"
 
-                # Exibição das 3 Opções com discriminação clara
-                st.info(f"🔹 **Opção 1 (Safe):**\n{layout_elite(0)}")
+                st.info(f"🔹 **Opção 1 (Safe):**\n{formatar_sugestao(0)}")
                 
-                if len(g) > 1 and len(c) > 1 and len(ca) > 1:
-                    st.info(f"🔹 **Opção 2 (Moderada):**\n{layout_elite(1)}")
+                if len(g) > 1:
+                    st.info(f"🔹 **Opção 2 (Moderada):**\n{formatar_sugestao(1)}")
                 
-                if len(g) > 2 and len(c) > 2 and len(ca) > 2:
-                    st.info(f"🔹 **Opção 3 (Arriscada):**\n{layout_elite(2)}")
+                if len(g) > 2:
+                    st.info(f"🔹 **Opção 3 (Arriscada):**\n{formatar_sugestao(2)}")
                 
-              
+                st.markdown("---")
                 st.caption("📊 **PROTOCOLO LB** - Sistema de Inteligência e Scouting de Elite")
                 st.caption("Precisão Estatística | DNA de Jogo | Gestão de Risco")
             st.divider()
