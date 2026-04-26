@@ -7,7 +7,7 @@ import random
 import os
 
 # --- 1. QG DE INTELIGÊNCIA: RADAR GLOBAL ---
-THE_ODDS_KEY = '4eeb55e11fc9b7ed7db6377f2f23d6f1'
+THE_ODDS_KEY = '9b1e5bdfb194963d95185f3363fb2f3d'
 
 LIGAS_ELITE = {
     "Brasileirão Série A": {"key": "soccer_brazil_campeonato", "p_cards": 1.4, "p_gols": 1.0},
