@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 import hashlib
 import random
 import os
@@ -9,19 +9,34 @@ import os
 # --- 1. QG DE INTELIGÊNCIA: RADAR GLOBAL ---
 THE_ODDS_KEY = '9b1e5bdfb194963d95185f3363fb2f3d'
 
+# LIGAS SINCRONIZADAS COM O APP DE CONSULTA (14 LIGAS DE ELITE)
 LIGAS_ELITE = {
     "Brasileirão Série A": {"key": "soccer_brazil_campeonato", "p_cards": 1.4, "p_gols": 1.0},
-    "Brasileirão Série B": {"key": "soccer_brazil_campeonato_serie_b", "p_cards": 1.6, "p_gols": 0.75},
+    "Brasileirão Série B": {"key": "soccer_brazil_serie_b", "p_cards": 1.6, "p_gols": 0.75},
+    "Copa Libertadores": {"key": "soccer_conmebol_libertadores", "p_cards": 1.7, "p_gols": 0.9},
+    "Liga Argentina": {"key": "soccer_argentina_primera_division", "p_cards": 1.8, "p_gols": 0.8},
+    "MLS (EUA)": {"key": "soccer_usa_mls", "p_cards": 0.7, "p_gols": 1.6},
     "Premier League (Inglaterra)": {"key": "soccer_epl", "p_cards": 0.6, "p_gols": 1.6},
     "Bundesliga (Alemanha)": {"key": "soccer_germany_bundesliga", "p_cards": 0.7, "p_gols": 1.8},
     "La Liga (Espanha)": {"key": "soccer_spain_la_liga", "p_cards": 1.2, "p_gols": 1.1},
     "Serie A (Itália)": {"key": "soccer_italy_serie_a", "p_cards": 1.3, "p_gols": 1.0},
     "Ligue 1 (França)": {"key": "soccer_france_ligue_one", "p_cards": 0.9, "p_gols": 1.2},
+    "Liga Portugal": {"key": "soccer_portugal_primeira_liga", "p_cards": 1.4, "p_gols": 1.1},
     "Champions League": {"key": "soccer_uefa_champs_league", "p_cards": 0.9, "p_gols": 1.5},
-    "Copa Libertadores": {"key": "soccer_conmebol_libertadores", "p_cards": 1.7, "p_gols": 0.9}
+    "Liga Europa": {"key": "soccer_uefa_europa_league", "p_cards": 1.0, "p_gols": 1.4},
+    "Conference League": {"key": "soccer_uefa_europa_conference_league", "p_cards": 1.1, "p_gols": 1.3}
 }
 
-# --- 2. MOTOR DE DNA (ESTRUTURA ORIGINAL v224) ---
+# FUNÇÃO DE LOGO INTELIGENTE (QUADRADA PROTOCOLO LB)
+def carregar_logo(tamanho=350):
+    nomes_possiveis = ["image_004099.png", "logo_lb.png", "logo_lb.jpg", "logo_lb.jpeg"]
+    for nome in nomes_possiveis:
+        if os.path.exists(nome):
+            st.image(nome, width=tamanho)
+            return True
+    return False
+
+# --- 2. MOTOR DE DNA (ESTRUTURA ORIGINAL v224 INTACTA) ---
 def farejar_dna_v224(time, mercado, mando, liga, data):
     identidade = f"{time}{mercado}{mando}{liga}{data}v224"
     seed = int(hashlib.md5(identidade.encode()).hexdigest(), 16) % 10**8
@@ -79,10 +94,12 @@ def salvar_no_ledger(data_j, h, a, xg_h, xg_a, best_gol, best_canto, best_card):
     else: novo_registro.to_csv(ARQUIVO_PLANILHA, mode='a', header=False, index=False, sep=";", encoding="utf-8-sig")
 
 # --- 4. INTERFACE ---
-st.set_page_config(page_title="Sniper v239 - Online Mode", layout="wide")
-st.title("🛡️ PROTOCOLO LB | Scouting de Elite")
+st.set_page_config(page_title="PROTOCOLO LB - Master", layout="wide")
 
-# --- GERENCIADOR DE PLANILHA (SISTEMA ORIGINAL COM LIXEIRA) ---
+if not carregar_logo(350):
+    st.title("🛡️ PROTOCOLO LB | Scouting de Elite")
+
+# --- GERENCIADOR DE PLANILHA ---
 if os.path.exists(ARQUIVO_PLANILHA):
     with st.expander("📊 GERENCIAR PLANILHA"):
         df_led = pd.read_csv(ARQUIVO_PLANILHA, sep=";")
@@ -103,19 +120,30 @@ with st.sidebar:
     liga_sel = st.selectbox("Escolha a Liga", list(LIGAS_ELITE.keys()))
     data_sel = st.date_input("Data da Rodada", value=datetime.now())
     if st.button("🔍 Iniciar Varredura"):
-        url = f"https://api.the-odds-api.com/v4/sports/{LIGAS_ELITE[liga_sel]['key']}/odds/?apiKey={THE_ODDS_KEY}&regions=us&markets=h2h"
+        # VARREDURA MULTI-REGIÃO COM FUSO HORÁRIO BRASIL
+        url = f"https://api.the-odds-api.com/v4/sports/{LIGAS_ELITE[liga_sel]['key']}/odds/?apiKey={THE_ODDS_KEY}&regions=us,uk,eu,au&markets=h2h&all=true"
         res = requests.get(url)
         if res.status_code == 200:
-            st.session_state['jogos_v224'] = [j for j in res.json() if j['commence_time'].startswith(data_sel.strftime("%Y-%m-%d"))]
+            jogos_v224 = []
+            for j in res.json():
+                utc_time = datetime.strptime(j['commence_time'], "%Y-%m-%dT%H:%M:%SZ")
+                brt_time = utc_time - timedelta(hours=3) # Horário de Brasília
+                if brt_time.date() == data_sel:
+                    j['brt_time'] = brt_time.strftime("%H:%M")
+                    jogos_v224.append(j)
+            st.session_state['jogos_v224'] = jogos_v224
+            if not jogos_v224:
+                st.sidebar.warning("Nenhum jogo nesta data para a liga selecionada.")
 
 # --- ANÁLISE COM MEMÓRIA (PREVENT REFRESH) ---
 if 'jogos_v224' in st.session_state:
     for idx, jogo in enumerate(st.session_state['jogos_v224']):
         h_t, a_t, j_data = jogo['home_team'], jogo['away_team'], jogo['commence_time'].split('T')[0]
+        horario = jogo.get('brt_time', '--:--')
         state_key = f"analise_{idx}_{h_t}_{a_t}"
         
         with st.container():
-            st.markdown(f"### 🏟️ {h_t} x {a_t}")
+            st.markdown(f"### 🏟️ {h_t} x {a_t} | 🕒 {horario}")
             
             if st.button(f"📡 ANALISAR: {h_t} x {a_t}", key=f"btn_{idx}"):
                 gh = farejar_dna_v224(h_t, "Gols", "casa", liga_sel, j_data)
@@ -151,12 +179,10 @@ if 'jogos_v224' in st.session_state:
                 s_c = c2.selectbox("Melhor Canto", [r[0] for r in dados["res_c"][:5]], key=f"s_c_{idx}")
                 s_ca = c3.selectbox("Melhor Card", [r[0] for r in dados["res_ca"][:5]], key=f"s_ca_{idx}")
 
-# --- INSERIR O RODAPÉ DA MARCA AQUI ---
                 st.markdown("---")
                 st.caption("📊 **PROTOCOLO LB** - Sistema de Inteligência e Scouting de Elite")
                 st.caption("Precisão Estatística | DNA de Jogo | Gestão de Risco")
-                # --------------------------------------
-                
+
                 if st.button("✅ Confirmar e Salvar no Histórico", key=f"save_{idx}"):
                     salvar_no_ledger(j_data, h_t, a_t, dados["xg_h"], dados["xg_a"], s_g, s_c, s_ca)
                     st.success(f"🎯 Registro de {h_t} salvo!")
