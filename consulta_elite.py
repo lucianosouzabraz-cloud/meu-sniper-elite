@@ -10,7 +10,7 @@ import os
 SENHA_ACESSO = "elite2026" 
 THE_ODDS_KEY = '9b1e5bdfb194963d95185f3363fb2f3d'
 
-# LIGAS SINCRONIZADAS COM O MASTER
+# LIGAS SINCRONIZADAS COM O MASTER (INCLUÍDA: LIGA PORTUGAL)
 LIGAS_ELITE = {
     "Brasileirão Série A": {"key": "soccer_brazil_campeonato", "p_cards": 1.4, "p_gols": 1.0},
     "Brasileirão Série B": {"key": "soccer_brazil_serie_b", "p_cards": 1.6, "p_gols": 0.75},
@@ -22,7 +22,10 @@ LIGAS_ELITE = {
     "La Liga (Espanha)": {"key": "soccer_spain_la_liga", "p_cards": 1.2, "p_gols": 1.1},
     "Serie A (Itália)": {"key": "soccer_italy_serie_a", "p_cards": 1.3, "p_gols": 1.0},
     "Ligue 1 (França)": {"key": "soccer_france_ligue_one", "p_cards": 0.9, "p_gols": 1.2},
-    "Champions League": {"key": "soccer_uefa_champs_league", "p_cards": 0.9, "p_gols": 1.5}
+    "Liga Portugal": {"key": "soccer_portugal_primeira_liga", "p_cards": 1.4, "p_gols": 1.1},
+    "Champions League": {"key": "soccer_uefa_champs_league", "p_cards": 0.9, "p_gols": 1.5},
+    "Liga Europa": {"key": "soccer_uefa_europa_league", "p_cards": 1.0, "p_gols": 1.4},
+    "Conference League": {"key": "soccer_uefa_europa_conference_league", "p_cards": 1.1, "p_gols": 1.3}
 }
 
 # FUNÇÃO DE LOGO INTELIGENTE
